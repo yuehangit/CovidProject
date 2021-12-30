@@ -30,12 +30,20 @@ Where location like '%Canada%'
 order by 1,2
 
 -- Highest Infection Percentage
-Select Location, MAX(total_cases) as HighestInfectionCount, Population, MAX((total_cases/Population))*100 as 
+Select Location, Population, MAX(total_cases) as HighestInfectionCount, MAX((total_cases/Population))*100 as 
 InfectedPercentage
 From CovidProject..CovidDeaths
 --Where location like '%Canada%'
 Group by Location, Population
 order by 4 desc
+
+-- Infection Percentage Progress by date
+Select Location, Population, date, MAX(total_cases) as HighestInfectionCount, MAX((total_cases/Population))*100 as 
+InfectedPercentage
+From CovidProject..CovidDeaths
+--Where location like '%Canada%'
+Group by Location, Population, date
+order by InfectedPercentage desc
 
 -- Countries with highest deaths per population
 Select Location, MAX(cast(total_deaths as int)) as TotalDeaths
@@ -43,12 +51,13 @@ From CovidProject..CovidDeaths
 --Where location like '%Canada%'
 where continent is not null
 Group by Location
-order by 2 desc
+order by 1 desc
 
 -- Continents with highest deaths per population
 Select location, MAX(cast(total_deaths as int)) as TotalDeaths
 From CovidProject..CovidDeaths
-Where continent is null and location not like '%income%'
+Where continent is null and location not in ('European Union', 'World', 'international') and
+location not like '%income%'
 Group by location
 order by TotalDeaths desc
 
@@ -69,6 +78,17 @@ Where continent is null and location  like '%income%'
 Group by Location, Population
 order by HighestInfectionCount desc
 
+-- Highest Infection Percentage by continent
+Select Location, MAX(total_cases) as HighestInfectionCount, Population, MAX((total_cases/Population))*100 as 
+InfectedPercentage
+From CovidProject..CovidDeaths
+Where continent is null and location not in ('European Union', 'World', 'international') and
+location not like '%income%'
+Group by Location, Population
+order by HighestInfectionCount desc
+
+
+--Total cases vs total deaths
 Select SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths,  SUM(cast(new_deaths as int))/SUM(New_cases) * 100 as DeathPercentage
 From CovidProject..CovidDeaths
 Where continent is not null
